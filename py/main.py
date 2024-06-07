@@ -5,6 +5,7 @@ import time
 import requests
 import multiprocessing
 import argparse
+from tools.WordTranslator import WordTranslator
 
 from waitress import serve
 from flask import Flask, jsonify, request, send_from_directory
@@ -29,6 +30,18 @@ def static_files(path):
 @app.route('/ping', methods=['GET'])
 def ping():
     return "pong"
+
+@app.route('/readText', methods=['POST'])
+def readText():
+    data = request.json
+    text = data.get('text')
+    if not text:
+        return jsonify({'error': 'No text provided'}), 400
+
+    translator = WordTranslator('../database/translations.db', 'ru', 'en')
+    translations = translator.translate_and_store(text)
+
+    return jsonify(translations)
 
 def start_server(port):
     serve(app, host='0.0.0.0', port=port)

@@ -4,7 +4,8 @@ import sys
 required_packages = [
     'Flask',
     'flask-cors',
-    'waitress'
+    'waitress',
+    "translate"
 ]
 
 def install_package(package):
