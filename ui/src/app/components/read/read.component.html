@@ -5,5 +5,9 @@
 </div>
 <hr>
 <div>
-  <span *ngFor="let word of words" class="word" title="{{word.translation}}">{{word.word}}</span>
+  <button class="word btn" [class.btn-info]="!word.translation" [class.btn-primary]="word.translation" *ngFor="let word of words" (click)="showThisWord(word)">{{word.word}}</button>
+</div>
+<hr>
+<div *ngIf="showWord" style="position: fixed; bottom: 1rem; font-weight: bolder">
+  <h1  class="btn btn-danger" style="text-align: center">{{showWord.word}} = {{showWord.translation}}</h1>
 </div>

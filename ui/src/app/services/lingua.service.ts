@@ -16,7 +16,7 @@ export class LinguaService {
     return this.http.get(`${this.baseUrl}ping`, {responseType: 'text'});
   }
 
-  readText(text:string):Observable<Word[]> {
-    return this.http.post<Word[]>(`${this.baseUrl}readText`, {text: text});
+  translateWords(text:string):Observable<Word[]> {
+    return this.http.post<Word[]>(`${this.baseUrl}translateWords`, {text: text});
   }
 }

@@ -31,15 +31,27 @@ def static_files(path):
 def ping():
     return "pong"
 
-@app.route('/readText', methods=['POST'])
-def readText():
+@app.route('/translate', methods=['POST'])
+def translate_entire_phrase():
     data = request.json
     text = data.get('text')
     if not text:
         return jsonify({'error': 'No text provided'}), 400
 
     translator = WordTranslator('../database/translations.db', 'ru', 'en')
-    translations = translator.translate_and_store(text)
+    translations = translator.translate_entire_phrase(text)
+
+    return jsonify(translations)
+
+@app.route('/translateWords', methods=['POST'])
+def translate_word_by_word():
+    data = request.json
+    text = data.get('text')
+    if not text:
+        return jsonify({'error': 'No text provided'}), 400
+
+    translator = WordTranslator('../database/translations.db', 'ru', 'en')
+    translations = translator.translate_word_by_word(text)
 
     return jsonify(translations)
 

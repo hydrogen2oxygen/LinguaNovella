@@ -1,4 +1,5 @@
 import os
+import re
 import sqlite3
 from translate import Translator
 
@@ -17,6 +18,7 @@ class WordTranslator:
     def _create_table(self):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
+            cursor.execute('''DELETE FROM translations''')
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS translations (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,13 +43,19 @@ class WordTranslator:
             cursor.execute('INSERT INTO translations (word, translation) VALUES (?, ?)', (word, translation))
             conn.commit()
 
-    def translate_and_store(self, text):
+    def translate_entire_phrase(self, text):
+        # TODO if phrase is not too long, store it also inside database
+        return self.translator.translate(text)
+
+    def translate_word_by_word(self, text):
         words = text.split()
         translations = []
         for word in words:
+            word = re.sub(r'[^\w\s]', '', word, flags=re.UNICODE).lower()
             translation = self.get_translation_from_db(word)
             if not translation:
                 translation = self.translator.translate(word)
+                translation = re.sub(r'[^\w\s]', '', translation, flags=re.UNICODE).lower()
                 self.save_translation_to_db(word, translation)
             translations.append({"word": word, "translation": translation})
         return translations
