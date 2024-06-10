@@ -18,12 +18,13 @@ class WordTranslator:
     def _create_table(self):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            cursor.execute('''DELETE FROM translations''')
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS translations (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     word TEXT NOT NULL,
-                    translation TEXT NOT NULL
+                    translation TEXT NOT NULL,
+                    from_lang TEXT NOT NULL,
+                    to_lang TEXT NOT NULL
                 )
             ''')
             conn.commit()
