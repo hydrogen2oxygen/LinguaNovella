@@ -32,7 +32,7 @@ class WordTranslator:
     def get_translation_from_db(self, word):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            cursor.execute('SELECT translation FROM translations WHERE word = ?', (word,))
+            cursor.execute('SELECT translation FROM translations WHERE word = ? AND from_lang = ? AND to_lang = ?', (word, self.from_lang, self.to_lang))
             result = cursor.fetchone()
             if result:
                 return result[0]
@@ -41,7 +41,7 @@ class WordTranslator:
     def save_translation_to_db(self, word, translation):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            cursor.execute('INSERT INTO translations (word, translation) VALUES (?, ?)', (word, translation))
+            cursor.execute('INSERT INTO translations (word, translation, from_lang, to_lang) VALUES (?, ?, ?, ?)', (word, translation, self.from_lang, self.to_lang))
             conn.commit()
 
     def translate_entire_phrase(self, text):
@@ -53,7 +53,7 @@ class WordTranslator:
         translations = []
         for word in words:
             word = re.sub(r'[^\w\s]', '', word, flags=re.UNICODE).lower()
-            translation = self.get_translation_from_db(word)
+            translation = self.get_translation_from_db(word, self.from_lang, self.to_lang)
             if not translation:
                 translation = self.translator.translate(word)
                 translation = re.sub(r'[^\w\s]', '', translation, flags=re.UNICODE).lower()

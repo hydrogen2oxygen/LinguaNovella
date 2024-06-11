@@ -35,10 +35,12 @@ def ping():
 def translate_entire_phrase():
     data = request.json
     text = data.get('text')
+    from_lang = data.get('from_lang')
+    to_lang = data.get('to_lang')
     if not text:
         return jsonify({'error': 'No text provided'}), 400
 
-    translator = WordTranslator('../database/translations.db', 'ru', 'en')
+    translator = WordTranslator('../database/translations.db', from_lang, to_lang)
     translations = translator.translate_entire_phrase(text)
 
     return jsonify(translations)
@@ -47,10 +49,12 @@ def translate_entire_phrase():
 def translate_word_by_word():
     data = request.json
     text = data.get('text')
+    from_lang = data.get('from_lang')
+    to_lang = data.get('to_lang')
     if not text:
         return jsonify({'error': 'No text provided'}), 400
 
-    translator = WordTranslator('../database/translations.db', 'ru', 'en')
+    translator = WordTranslator('../database/translations.db', from_lang, to_lang)
     translations = translator.translate_word_by_word(text)
 
     return jsonify(translations)
