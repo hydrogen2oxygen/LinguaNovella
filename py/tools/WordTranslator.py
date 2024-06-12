@@ -53,7 +53,7 @@ class WordTranslator:
         translations = []
         for word in words:
             word = re.sub(r'[^\w\s]', '', word, flags=re.UNICODE).lower()
-            translation = self.get_translation_from_db(word, self.from_lang, self.to_lang)
+            translation = self.get_translation_from_db(word)
             if not translation:
                 translation = self.translator.translate(word)
                 translation = re.sub(r'[^\w\s]', '', translation, flags=re.UNICODE).lower()
@@ -64,5 +64,5 @@ class WordTranslator:
     def fetch_all_translations(self):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            cursor.execute('SELECT word, translation FROM translations')
+            cursor.execute('SELECT word, translation FROM translations WHERE from_lang = ? AND to_lang = ?', (self.from_lang, self.to_lang))
             return cursor.fetchall()

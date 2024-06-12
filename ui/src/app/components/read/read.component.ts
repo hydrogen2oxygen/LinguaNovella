@@ -13,6 +13,8 @@ export class ReadComponent implements OnInit {
   text = new FormControl('');
   words:Word[] = []
   showWord:Word|undefined
+  from_lang:string = "ru"
+  to_lang:string = "en"
 
   constructor(private lingua:LinguaService) { }
 
@@ -22,7 +24,7 @@ export class ReadComponent implements OnInit {
 
   readText() {
     // @ts-ignore
-    this.lingua.translateWords(this.text.value).subscribe({
+    this.lingua.translateWords(this.text.value, this.from_lang, this.to_lang).subscribe({
       next: value => {
         this.words = value
       }
