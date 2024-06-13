@@ -25,6 +25,7 @@ class TrainVocabularyService:
                     word TEXT NOT NULL,
                     wrong INTEGER DEFAULT 0,
                     correct INTEGER DEFAULT 0,
+                    written INTEGER DEFAULT 0,
                     last_update DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
@@ -43,10 +44,10 @@ class TrainVocabularyService:
     def get_vocabulary_from_db(self, phrase_id):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            cursor.execute('SELECT phrase_id, word, wrong, correct, last_update FROM vocabulary WHERE phrase_id = ?', (phrase_id,))
-            result = cursor.fetchone()
+            cursor.execute('SELECT phrase_id, word, wrong, correct, last_update, written FROM vocabulary WHERE phrase_id = ?', (phrase_id,))
+            result = cursor.fetchall()
             if result:
-                return result[0]
+                return result
             return None
 
     def save_vocabulary_session(self, data):
@@ -57,6 +58,19 @@ class TrainVocabularyService:
                 word = voc.get('word')
                 correct = voc.get('correct')
                 wrong = voc.get('wrong')
+                written = voc.get('written')
                 phrase_id = voc.get('phrase_id')
-                cursor.execute('UPDATE translations SET wrong = ?, correct = ?, last_update = CURRENT_TIMESTAMP WHERE word = ? and phrase_id = ?', (wrong, correct, word, phrase_id))
+                cursor.execute('UPDATE vocabulary SET wrong = ?, correct = ?, written = ?, last_update = CURRENT_TIMESTAMP WHERE word = ? AND phrase_id = ?', (wrong, correct, written, word, phrase_id))
             conn.commit()
+
+    def save_phrase_to_db(self, data):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            phrase = data.get('phrase')
+            language = data.get('language')
+            translation = data.get('translation')
+            from_lang = data.get('from_lang')
+            to_lang = data.get('to_lang')
+            cursor.execute('INSERT INTO phrase (phrase, language, translation, from_lang, to_lang) VALUES (?, ?, ?, ?, ?)', (phrase, language, translation, from_lang, to_lang))
+            conn.commit()
+            return cursor.lastrowid

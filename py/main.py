@@ -13,6 +13,8 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
+translation_db_location = '../database/translations.db'
+vocabulary_db_location = '../database/vocabulary.db'
 
 # Serving static files
 # --------------------------------
@@ -40,7 +42,7 @@ def translate_entire_phrase():
     if not text:
         return jsonify({'error': 'No text provided'}), 400
 
-    translator = WordTranslator('../database/translations.db', from_lang, to_lang)
+    translator = WordTranslator(translation_db_location, from_lang, to_lang)
     translations = translator.translate_entire_phrase(text)
 
     return jsonify(translations)
@@ -54,7 +56,7 @@ def translate_word_by_word():
     if not text:
         return jsonify({'error': 'No text provided'}), 400
 
-    translator = WordTranslator('../database/translations.db', from_lang, to_lang)
+    translator = WordTranslator(translation_db_location, from_lang, to_lang)
     translations = translator.translate_word_by_word(text)
 
     return jsonify(translations)
