@@ -45,7 +45,6 @@ class WordTranslator:
             conn.commit()
 
     def translate_entire_phrase(self, text):
-        # TODO if phrase is not too long, store it also inside database
         return self.translator.translate(text)
 
     def translate_word_by_word(self, text):

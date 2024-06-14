@@ -3,12 +3,8 @@ import sqlite3
 
 class TrainVocabularyService:
 
-    def __init__(self, db_path, from_lang, to_lang, user_name, phrase):
+    def __init__(self, db_path):
         self.db_path = db_path
-        self.from_lang = from_lang
-        self.to_lang = to_lang
-        self.user_name = user_name
-        self.phrase = phrase
 
         # Ensure the directory exists
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)

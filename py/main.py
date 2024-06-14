@@ -6,6 +6,7 @@ import requests
 import multiprocessing
 import argparse
 from tools.WordTranslator import WordTranslator
+from services.TrainVocabularyService import TrainVocabularyService
 
 from waitress import serve
 from flask import Flask, jsonify, request, send_from_directory
@@ -43,9 +44,13 @@ def translate_entire_phrase():
         return jsonify({'error': 'No text provided'}), 400
 
     translator = WordTranslator(translation_db_location, from_lang, to_lang)
-    translations = translator.translate_entire_phrase(text)
+    translated_phrase = translator.translate_entire_phrase(text)
+    data.set('translation', translated_phrase)
+    vocabulary = TrainVocabularyService(vocabulary_db_location)
+    phrase_id = vocabulary.save_phrase_to_db(data)
+    vocabulary.save_phrase_to_db()
 
-    return jsonify(translations)
+    return jsonify(translated_phrase)
 
 @app.route('/translateWords', methods=['POST'])
 def translate_word_by_word():
