@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {FormControl} from "@angular/forms";
 import {LinguaService} from "../../services/lingua.service";
-import {Word} from "../../domains/word";
+import {Vocabulary, Word} from "../../domains/word";
 
 @Component({
   selector: 'app-read',
@@ -11,7 +11,7 @@ import {Word} from "../../domains/word";
 export class ReadComponent implements OnInit {
 
   text = new FormControl('');
-  words:Word[] = []
+  vocabulary:Vocabulary|undefined
   showWord:Word|undefined
   from_lang:string = "ru"
   to_lang:string = "en"
@@ -24,9 +24,10 @@ export class ReadComponent implements OnInit {
 
   readText() {
     // @ts-ignore
-    this.lingua.translateWords(this.text.value, this.from_lang, this.to_lang).subscribe({
+    this.lingua.trainReading(this.text.value, this.from_lang, this.to_lang).subscribe({
       next: value => {
-        this.words = value
+        console.log(value)
+        this.vocabulary = value
       }
     })
   }

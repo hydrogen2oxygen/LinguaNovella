@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {environment} from "../../environments/environment";
-import {Word} from "../domains/word";
+import {Vocabulary, Word} from "../domains/word";
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,7 @@ export class LinguaService {
     return this.http.get(`${this.baseUrl}ping`, {responseType: 'text'});
   }
 
-  translateWords(text:string, from_lang:string, to_lang:string):Observable<Word[]> {
-    return this.http.post<Word[]>(`${this.baseUrl}translateWords`, {text: text, from_lang: from_lang, to_lang: to_lang});
+  trainReading(text:string, from_lang:string, to_lang:string):Observable<Vocabulary> {
+    return this.http.post<Vocabulary>(`${this.baseUrl}trainReading`, {text: text, from_lang: from_lang, to_lang: to_lang});
   }
 }

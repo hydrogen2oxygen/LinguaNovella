@@ -34,25 +34,7 @@ def static_files(path):
 def ping():
     return "pong"
 
-@app.route('/translate', methods=['POST'])
-def translate_entire_phrase():
-    data = request.json
-    text = data.get('text')
-    from_lang = data.get('from_lang')
-    to_lang = data.get('to_lang')
-    if not text:
-        return jsonify({'error': 'No text provided'}), 400
-
-    translator = WordTranslator(translation_db_location, from_lang, to_lang)
-    translated_phrase = translator.translate_entire_phrase(text)
-    data.set('translation', translated_phrase)
-    vocabulary = TrainVocabularyService(vocabulary_db_location)
-    phrase_id = vocabulary.save_phrase_to_db(data)
-    vocabulary.save_phrase_to_db()
-
-    return jsonify(translated_phrase)
-
-@app.route('/translateWords', methods=['POST'])
+@app.route('/trainReading', methods=['POST'])
 def translate_word_by_word():
     data = request.json
     text = data.get('text')
@@ -62,9 +44,17 @@ def translate_word_by_word():
         return jsonify({'error': 'No text provided'}), 400
 
     translator = WordTranslator(translation_db_location, from_lang, to_lang)
-    translations = translator.translate_word_by_word(text)
+    vocabulary = TrainVocabularyService(vocabulary_db_location)
 
-    return jsonify(translations)
+    translated_phrase = translator.translate_entire_phrase(text)
+    data.update([('translation', translated_phrase)])
+    translations = translator.translate_word_by_word(text)
+    data.update([('translations', translations)])
+
+    vocabulary.save_phrase_to_db(data)
+    vocabulary.save_vocabulary_set(data)
+
+    return jsonify(data)
 
 def start_server(port):
     serve(app, host='0.0.0.0', port=port)
