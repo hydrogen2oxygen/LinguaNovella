@@ -14,3 +14,8 @@
   <h1  class="btn btn-danger" style="text-align: center">{{showWord.word}} = {{showWord.translation}}</h1>
 </div>
 <h1>TYPE</h1>
+<!--The content below is only a placeholder and can be replaced.-->
+<div style="text-align:center">
+  <input (input)="onInputChange($event)" class="input" value={{value}} placeholder="Tap on the virtual keyboard to start" />
+  <div class="simple-keyboard"></div>
+</div>

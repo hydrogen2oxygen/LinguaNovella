@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import {FormControl} from "@angular/forms";
 import {LinguaService} from "../../services/lingua.service";
 import {Vocabulary, Word} from "../../domains/word";
+import Keyboard from 'simple-keyboard';
+import layout from "simple-keyboard-layouts/build/layouts/japanese";
+import * as events from "events";
+
 
 @Component({
   selector: 'app-read',
@@ -15,6 +19,9 @@ export class ReadComponent implements OnInit {
   showWord:Word|undefined
   from_lang:string = "ru"
   to_lang:string = "en"
+
+  value = ""
+  keyboard:Keyboard|undefined
 
   constructor(private lingua:LinguaService) { }
 
@@ -30,6 +37,11 @@ export class ReadComponent implements OnInit {
         this.vocabulary = value
       }
     })
+
+    this.keyboard = new Keyboard({
+      onChange: input => this.onChange(input),
+      onKeyPress: button => this.onKeyPress(button)
+    });
   }
 
   showThisWord(word: Word) {
@@ -40,4 +52,37 @@ export class ReadComponent implements OnInit {
       setTimeout(() => this.showWord = undefined, 1000)
     }
   }
+
+  onChange = (input: string) => {
+    this.value = input;
+    console.log("Input changed", input);
+  };
+
+  onKeyPress = (button: string) => {
+    console.log("Button pressed", button);
+
+    /**
+     * If you want to handle the shift and caps lock buttons
+     */
+    if (button === "{shift}" || button === "{lock}") this.handleShift();
+  };
+
+  onInputChange = (event: any) => {
+    // @ts-ignore
+    this.keyboard.setInput(event.target.value);
+  };
+
+  handleShift = () => {
+    // @ts-ignore
+    let currentLayout = this.keyboard.options.layoutName;
+    let shiftToggle = currentLayout === "default" ? "shift" : "default";
+
+    // @ts-ignore
+    this.keyboard.setOptions({
+      layoutName: shiftToggle
+    });
+  };
+
+
+  protected readonly events = events;
 }
