@@ -4,6 +4,8 @@ import {LinguaService} from "../../services/lingua.service";
 import {Word} from "../../domains/word";
 
 import Keyboard from "simple-keyboard";
+import layout from "simple-keyboard-layouts/build/layouts/russian";
+import SimpleKeyboardLayouts from "simple-keyboard-layouts";
 
 @Component({
   selector: 'app-read',
@@ -21,15 +23,27 @@ export class ReadComponent implements OnInit {
 
   value = "";
   keyboard: Keyboard|undefined;
+  skl = new SimpleKeyboardLayouts()
+  languagesAvailable: string[] = []
+  selectedLanguageLayout = new FormControl('');
 
   constructor(private lingua:LinguaService) { }
 
   ngOnInit(): void {
+    this.languagesAvailable = Object.keys(this.skl.layouts)
+    console.log(this.languagesAvailable)
+
     this.text.setValue("Это о том, как быстро выучить новые слова")
     this.keyboard = new Keyboard({
       onChange: input => this.onChange(input),
       onKeyPress: button => this.onKeyPress(button),
-      theme: "hg-theme-default darkKeyboardTheme"
+      theme: "hg-theme-default darkKeyboardTheme",
+      physicalKeyboardHighlight: true,
+      ...layout
+    });
+    // Listen for physical keyboard inputs
+    document.addEventListener('keydown', (event) => {
+      this.handlePhysicalKeyboardInput(event);
     });
   }
 
@@ -66,6 +80,13 @@ export class ReadComponent implements OnInit {
     });
   };
 
+  handlePhysicalKeyboardInput(event: KeyboardEvent) {
+    // Update the virtual keyboard input with the physical keyboard event
+    console.log(event.key)
+    this.value += event.key;
+    this.keyboard?.setInput(this.value);
+  }
+
   readText() {
     // @ts-ignore
     this.lingua.translateWords(this.text.value, this.from_lang, this.to_lang).subscribe({
@@ -82,5 +103,13 @@ export class ReadComponent implements OnInit {
       this.showWord = word
       setTimeout(() => this.showWord = undefined, 1000)
     }
+  }
+
+  changeKeyBoardLayout() {
+    let language = this.selectedLanguageLayout.value
+    console.log(language)
+    this.keyboard?.setOptions({
+      layout: this.skl.layouts['russian']
+    })
   }
 }

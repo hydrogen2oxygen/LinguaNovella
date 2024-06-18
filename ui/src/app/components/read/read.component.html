@@ -16,6 +16,9 @@
   <h1  class="btn btn-danger" style="text-align: center">{{showWord.word}} = {{showWord.translation}}</h1>
 </div>
 <div style="text-align:center">
+  <select (change)="changeKeyBoardLayout()" [formControl]="selectedLanguageLayout">
+    <option *ngFor="let l of languagesAvailable">{{l}}</option>
+  </select>
   <input (input)="onInputChange($event)" class="input" value={{value}} placeholder="Tap on the virtual keyboard to start" />
   <div class="simple-keyboard"></div>
 </div>
