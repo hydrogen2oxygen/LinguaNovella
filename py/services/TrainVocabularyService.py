@@ -66,10 +66,21 @@ class TrainVocabularyService:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute('SELECT phrase_id, word, translation, wrong, correct, last_update, written FROM vocabulary WHERE phrase_id = ?', (phrase_id,))
-            result = cursor.fetchall()
-            if result:
-                return result
-            return None
+            data = {}
+            data.update([('phrase_id',cursor.lastrowid)])
+            vocabulary = []
+
+            for row in cursor:
+                wordObject = {}
+                wordObject.update([('word',row[1])])
+                wordObject.update([('translation',row[2])])
+                wordObject.update([('wrong',row[3])])
+                wordObject.update([('correct',row[4])])
+                wordObject.update([('last_update',row[5])])
+                wordObject.update([('written',row[6])])
+                vocabulary.append(wordObject)
+            data.update([('vocabulary',vocabulary)])
+            return data
 
     def save_vocabulary_session(self, data):
         with sqlite3.connect(self.db_path) as conn:
