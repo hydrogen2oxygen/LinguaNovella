@@ -44,5 +44,13 @@ print("# retrieve vocabulary with the phrase id")
 data = vocabulary.get_vocabulary_from_db(data.get('phrase_id'))
 print(data)
 
+print("# the use was able to learn a word successfully")
+for wordObject in data.get('vocabulary'):
+    if wordObject.get('word') == 'это':
+        correct = wordObject.get('correct')
+        wordObject.update([('correct', correct + 1)])
+        break
+
 print("# after a training session, the data is updated in the database")
+print(data)
 vocabulary.save_vocabulary_session(data)
