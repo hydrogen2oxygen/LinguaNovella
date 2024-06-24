@@ -19,22 +19,25 @@ text = 'Это о том, как быстро выучить новые слов
 from_lang = 'ru'
 to_lang = 'en'
 
-print("# translate")
+vocabulary = TrainVocabularyService(vocabulary_db_location)
 translator = WordTranslator(translation_db_location, from_lang, to_lang)
-translated_phrase = translator.translate_entire_phrase(text)
-translated_words = translator.translate_word_by_word(text)
-print(translated_words)
 
 print("# data object holds all relevant data (obviously)")
 data = {}
 data.update([('from_lang', from_lang)])
 data.update([('to_lang', to_lang)])
 data.update([('text', text)])
+
+print("# we assume we have no phrase_id at this time (empty database)")
+data = vocabulary.get_phrase(data)
+print("# translate ")
+translated_phrase = translator.translate_entire_phrase(text)
+translated_words = translator.translate_word_by_word(text)
 data.update([('translation', translated_phrase)])
 data.update([('translations', translated_words)])
+print(data)
 
 print("# create a set of vocabulary training data")
-vocabulary = TrainVocabularyService(vocabulary_db_location)
 vocabulary.save_phrase_to_db(data)
 vocabulary.save_vocabulary_set(data)
 print("# vocabulary: ")
@@ -54,3 +57,10 @@ for wordObject in data.get('vocabulary'):
 print("# after a training session, the data is updated in the database")
 print(data)
 vocabulary.save_vocabulary_session(data)
+
+print("# now we should have a phrase_id")
+data = vocabulary.get_phrase(data)
+if data.get('phrase_id') is None:
+    print("FAIL!")
+else:
+    print(data.get('phrase_id'))

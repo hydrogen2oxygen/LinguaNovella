@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormControl} from "@angular/forms";
 import {LinguaService} from "../../services/lingua.service";
-import {Vocabulary, Word} from "../../domains/word";
+import {Word} from "../../domains/word";
 import Keyboard from 'simple-keyboard';
-import layout from "simple-keyboard-layouts/build/layouts/japanese";
 import * as events from "events";
+import {TrainingData} from "../../domains/TrainingData";
 
 
 @Component({
@@ -15,33 +15,36 @@ import * as events from "events";
 export class ReadComponent implements OnInit {
 
   text = new FormControl('');
-  vocabulary:Vocabulary|undefined
+  trainingData:TrainingData = new TrainingData()
   showWord:Word|undefined
-  from_lang:string = "ru"
-  to_lang:string = "en"
-
-  value = ""
   keyboard:Keyboard|undefined
 
   constructor(private lingua:LinguaService) { }
 
   ngOnInit(): void {
     this.text.setValue("Это о том, как быстро выучить новые слова")
-  }
-
-  readText() {
-    // @ts-ignore
-    this.lingua.trainReading(this.text.value, this.from_lang, this.to_lang).subscribe({
-      next: value => {
-        console.log(value)
-        this.vocabulary = value
-      }
-    })
+    this.trainingData.from_lang = "ru"
+    this.trainingData.to_lang = "en"
 
     this.keyboard = new Keyboard({
       onChange: input => this.onChange(input),
       onKeyPress: button => this.onKeyPress(button)
     });
+  }
+
+  readText() {
+
+    this.trainingData.phrase_id = undefined
+    // @ts-ignore
+    this.trainingData.text = this.text.value
+
+    this.lingua.trainReading(this.trainingData).subscribe({
+      next: value => {
+        console.log(value)
+        this.trainingData = value
+
+      }
+    })
   }
 
   showThisWord(word: Word) {
@@ -54,7 +57,8 @@ export class ReadComponent implements OnInit {
   }
 
   onChange = (input: string) => {
-    this.value = input;
+    this.trainingData.text = input;
+    this.trainingData.phrase_id = undefined
     console.log("Input changed", input);
   };
 

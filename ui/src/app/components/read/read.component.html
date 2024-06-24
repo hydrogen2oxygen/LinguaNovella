@@ -5,17 +5,17 @@
 </div>
 <hr>
 <div>
-  <button class="word btn" [class.btn-info]="!word.translation" [class.btn-primary]="word.translation" *ngFor="let word of vocabulary?.translations" (click)="showThisWord(word)">{{word.word}}</button>
+  <button class="word btn" [class.btn-info]="!vocabulary.translation" [class.btn-primary]="vocabulary.translation" *ngFor="let vocabulary of trainingData?.vocabulary" (click)="showThisWord(vocabulary)">{{vocabulary.word}}</button>
 </div>
 <hr>
 
 <hr>
 <div *ngIf="showWord" style="position: fixed; bottom: 1rem; font-weight: bolder">
-  <h1  class="btn btn-danger" style="text-align: center">{{showWord.word}} = {{showWord.translation}}</h1>
+  <h1 class="btn btn-danger" style="text-align: center">{{showWord.word}} = {{showWord.translation}}</h1>
 </div>
 <h1>TYPE</h1>
 <!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <input (input)="onInputChange($event)" class="input" value={{value}} placeholder="Tap on the virtual keyboard to start" />
+<div style="text-align:center" [class.hidden]="trainingData.vocabulary.length == 0">
+  <input (input)="onInputChange($event)" class="input" placeholder="Tap on the virtual keyboard to start" />
   <div class="simple-keyboard"></div>
 </div>

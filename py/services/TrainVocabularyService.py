@@ -45,10 +45,21 @@ class TrainVocabularyService:
             translation = data.get('translation')
             from_lang = data.get('from_lang')
             to_lang = data.get('to_lang')
-            print(data)
             cursor.execute('INSERT INTO phrase (phrase, translation, from_lang, to_lang) VALUES (?, ?, ?, ?)', (phrase, translation, from_lang, to_lang))
             conn.commit()
             data.update([('phrase_id',cursor.lastrowid)])
+
+    def get_phrase(self, data):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            phrase = data.get('text')
+            cursor.execute('SELECT id, translation FROM phrase WHERE phrase = ?', (phrase,))
+
+            for row in cursor:
+                data.update([('phrase_id',row[0])])
+                data.update([('translation',row[1])])
+
+            return data
 
     # SECOND save the vocabulary set
     def save_vocabulary_set(self, data):
@@ -62,12 +73,11 @@ class TrainVocabularyService:
                 cursor.execute('INSERT INTO vocabulary (phrase_id, word, translation, last_update) VALUES (?,?,?,CURRENT_TIMESTAMP)', (phrase_id, word, translation))
             conn.commit()
 
-    def get_vocabulary_from_db(self, phrase_id):
+    def get_vocabulary_from_db(self, data):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
+            phrase_id = data.get('phrase_id')
             cursor.execute('SELECT phrase_id, word, translation, wrong, correct, last_update, written FROM vocabulary WHERE phrase_id = ?', (phrase_id,))
-            data = {}
-            data.update([('phrase_id',cursor.lastrowid)])
             vocabulary = []
 
             for row in cursor:

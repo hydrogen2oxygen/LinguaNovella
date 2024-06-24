@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {environment} from "../../environments/environment";
-import {Vocabulary, Word} from "../domains/word";
+import {TrainingData} from "../domains/TrainingData";
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,9 @@ export class LinguaService {
     return this.http.get(`${this.baseUrl}ping`, {responseType: 'text'});
   }
 
-  trainReading(text:string, from_lang:string, to_lang:string):Observable<Vocabulary> {
-    return this.http.post<Vocabulary>(`${this.baseUrl}trainReading`, {text: text, from_lang: from_lang, to_lang: to_lang});
+  trainReading(trainingData:TrainingData):Observable<TrainingData> {
+    console.log("---")
+    console.log(trainingData)
+    return this.http.post<TrainingData>(`${this.baseUrl}trainReading`, trainingData);
   }
 }
