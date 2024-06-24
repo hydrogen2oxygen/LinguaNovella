@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl} from "@angular/forms";
 import {LinguaService} from "../../services/lingua.service";
-import {Word} from "../../domains/word";
 import Keyboard from 'simple-keyboard';
 import * as events from "events";
 import {TrainingData} from "../../domains/TrainingData";
+import {Vocabulary} from "../../domains/Vocabulary";
 
 
 @Component({
@@ -15,14 +15,16 @@ import {TrainingData} from "../../domains/TrainingData";
 export class ReadComponent implements OnInit {
 
   text = new FormControl('');
+  typing = new FormControl('');
   trainingData:TrainingData = new TrainingData()
-  showWord:Word|undefined
+  comparing:Vocabulary[] = []
+  showWord:Vocabulary|undefined
   keyboard:Keyboard|undefined
 
   constructor(private lingua:LinguaService) { }
 
   ngOnInit(): void {
-    this.text.setValue("Это о том, как быстро выучить новые слова")
+    this.text.setValue("да нет")
     this.trainingData.from_lang = "ru"
     this.trainingData.to_lang = "en"
 
@@ -42,14 +44,11 @@ export class ReadComponent implements OnInit {
       next: value => {
         console.log(value)
         this.trainingData = value
-
       }
     })
   }
 
-  showThisWord(word: Word) {
-    /* TODO store the need to show a word in the database for the user,
-        so we know he has difficulties with this word inside a phrase */
+  showThisWord(word: Vocabulary) {
     if (word && !this.showWord) {
       this.showWord = word
       setTimeout(() => this.showWord = undefined, 1000)
@@ -71,10 +70,32 @@ export class ReadComponent implements OnInit {
     if (button === "{shift}" || button === "{lock}") this.handleShift();
   };
 
-  onInputChange = (event: any) => {
+  checkInput = ($event: any) => {
     // @ts-ignore
-    this.keyboard.setInput(event.target.value);
+    this.keyboard.setInput($event.target.value);
+    console.log($event.target.value)
+
+    let words = this.typing.value?.split(" ")
+    this.comparing = []
+
+    words?.forEach((word, index) => {
+      if (this.trainingData.vocabulary[index].word == word) {
+        this.comparing.push(this.trainingData.vocabulary[index])
+      }
+    })
+
+    if (this.trainingData.vocabulary.length == this.comparing.length) {
+      setTimeout(()=>{
+        this.trainingData.vocabulary.forEach(vocabular => {
+          vocabular.written += 1
+        })
+        console.log(this.trainingData)
+        this.typing.setValue("")
+        this.comparing = []
+      }, 1000)
+    }
   };
+
 
   handleShift = () => {
     // @ts-ignore
@@ -89,4 +110,6 @@ export class ReadComponent implements OnInit {
 
 
   protected readonly events = events;
+
+
 }

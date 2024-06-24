@@ -12,10 +12,17 @@
 <hr>
 <div *ngIf="showWord" style="position: fixed; bottom: 1rem; font-weight: bolder">
   <h1 class="btn btn-danger" style="text-align: center">{{showWord.word}} = {{showWord.translation}}</h1>
+  ({{showWord.written}}|{{showWord.correct}}|{{showWord.wrong}})
 </div>
 <h1>TYPE</h1>
 <!--The content below is only a placeholder and can be replaced.-->
 <div style="text-align:center" [class.hidden]="trainingData.vocabulary.length == 0">
-  <input (input)="onInputChange($event)" class="input" placeholder="Tap on the virtual keyboard to start" />
+  <input (keyup)="checkInput($event)" [formControl]="typing" class="input" placeholder="Tap on the virtual keyboard to start"><br>
+  <button class="word btn btn-sucess btn-sm" [class.writingSuccess]="trainingData.vocabulary.length == comparing.length"
+          [class.btn-primary]="vocabulary.translation" *ngFor="let vocabulary of comparing">
+    {{vocabulary.word}}
+    <hr>
+    {{vocabulary.translation}}
+  </button>
   <div class="simple-keyboard"></div>
 </div>
