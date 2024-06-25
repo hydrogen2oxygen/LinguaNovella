@@ -104,9 +104,6 @@ export class ReadComponent implements OnInit {
         vocabular.written += 1
       })
 
-      console.log(this.trainingData)
-
-      let that = this
       this.lingua.saveTrainingProgress(this.trainingData).subscribe({
         next: value => {
           this.trainingData = value
@@ -116,7 +113,6 @@ export class ReadComponent implements OnInit {
             next: data => this.phrases = data
           })
           setTimeout(() => {
-            console.log(this.trainingData)
             this.typing.setValue("")
             this.comparing = []
           }, 1000) // TODO use animation
