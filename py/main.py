@@ -34,6 +34,14 @@ def static_files(path):
 def ping():
     return "pong"
 
+@app.route('/phrase', methods=['GET'])
+def getAllPhrases():
+    from_lang = request.args.get('from_lang')
+    to_lang = request.args.get('to_lang')
+    vocabulary = TrainVocabularyService(vocabulary_db_location)
+    data = vocabulary.get_all_phrases(from_lang, to_lang)
+    return jsonify(data)
+
 @app.route('/trainReading', methods=['POST'])
 def trainReading():
     data = request.json
@@ -63,6 +71,13 @@ def trainReading():
     data = vocabulary.get_vocabulary_from_db(data)
     return jsonify(data)
 
+@app.route('/saveTrainingProgress', methods=['PUT'])
+def save_vocabulary_session():
+    data = request.json
+    vocabulary = TrainVocabularyService(vocabulary_db_location)
+    vocabulary.save_vocabulary_session(data)
+    return jsonify(data)
+
 def start_server(port):
     serve(app, host='0.0.0.0', port=port)
 
@@ -90,7 +105,7 @@ if __name__ == '__main__':
     parser.print_help()
     args = vars(parser.parse_args())
     port = args['port']
-    print("Starting server ...")
+    print(f"Starting server ... port {port}")
     server_process = multiprocessing.Process(target=start_server, args=(port,))
     server_process.start()
     wait_for_server_and_open(port)

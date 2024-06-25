@@ -3,6 +3,7 @@ import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {environment} from "../../environments/environment";
 import {TrainingData} from "../domains/TrainingData";
+import {Phrase} from "../domains/Phrase";
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +18,14 @@ export class LinguaService {
   }
 
   trainReading(trainingData:TrainingData):Observable<TrainingData> {
-    console.log("---")
-    console.log(trainingData)
     return this.http.post<TrainingData>(`${this.baseUrl}trainReading`, trainingData);
+  }
+
+  saveTrainingProgress(trainingData:TrainingData):Observable<TrainingData> {
+    return this.http.put<TrainingData>(`${this.baseUrl}saveTrainingProgress`, trainingData);
+  }
+
+  getAllPhrases(from_lang:string, to_lang:string):Observable<Phrase[]> {
+    return this.http.get<Phrase[]>(`${this.baseUrl}phrase?from_lang=${from_lang}&to_lang=${to_lang}`);
   }
 }

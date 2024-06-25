@@ -61,6 +61,23 @@ class TrainVocabularyService:
 
             return data
 
+    def get_all_phrases(self, from_lang, to_lang):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT id, phrase, translation FROM phrase WHERE from_lang = ? AND to_lang = ? LIMIT 20 OFFSET 0', (from_lang.lower(),to_lang.lower(),))
+
+            phrases = []
+
+            for row in cursor:
+                phrase = {}
+                phrase.update([('phrase_id',row[0])])
+                phrase.update([('phrase',row[1])])
+                phrase.update([('translation',row[2])])
+                phrases.append(phrase)
+
+
+            return phrases
+
     # SECOND save the vocabulary set
     def save_vocabulary_set(self, data):
         with sqlite3.connect(self.db_path) as conn:
@@ -82,6 +99,7 @@ class TrainVocabularyService:
 
             for row in cursor:
                 wordObject = {}
+                wordObject.update([('phrase_id',row[0])])
                 wordObject.update([('word',row[1])])
                 wordObject.update([('translation',row[2])])
                 wordObject.update([('wrong',row[3])])
@@ -96,12 +114,22 @@ class TrainVocabularyService:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             vocabulary = data.get('vocabulary')
+            update_data = []
+
             for voc in vocabulary:
                 word = voc.get('word')
                 correct = voc.get('correct')
                 wrong = voc.get('wrong')
                 written = voc.get('written')
                 phrase_id = voc.get('phrase_id')
-                cursor.execute('UPDATE vocabulary SET wrong = ?, correct = ?, written = ?, last_update = CURRENT_TIMESTAMP WHERE word = ? AND phrase_id = ?', (wrong, correct, written, word, phrase_id))
+
+                print(f"Updating: word={word}, phrase_id={phrase_id}, wrong={wrong}, correct={correct}, written={written}")
+
+                if word is not None and phrase_id is not None:
+                    update_data.append((wrong, correct, written, word, phrase_id))
+                else:
+                    print("Skipping due to missing word or phrase_id.")
+
+            cursor.executemany('UPDATE vocabulary SET wrong = ?, correct = ?, written = ?, last_update = CURRENT_TIMESTAMP WHERE word = ? AND phrase_id = ?', update_data)
             conn.commit()
 

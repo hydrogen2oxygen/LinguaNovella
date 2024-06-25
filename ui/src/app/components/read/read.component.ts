@@ -5,6 +5,7 @@ import Keyboard from 'simple-keyboard';
 import * as events from "events";
 import {TrainingData} from "../../domains/TrainingData";
 import {Vocabulary} from "../../domains/Vocabulary";
+import {Phrase} from "../../domains/Phrase";
 
 
 @Component({
@@ -16,14 +17,18 @@ export class ReadComponent implements OnInit {
 
   text = new FormControl('');
   typing = new FormControl('');
-  trainingData:TrainingData = new TrainingData()
-  comparing:Vocabulary[] = []
-  showWord:Vocabulary|undefined
-  keyboard:Keyboard|undefined
+  trainingData: TrainingData = new TrainingData()
+  comparing: Vocabulary[] = []
+  showWord: Vocabulary | undefined
+  keyboard: Keyboard | undefined
+  phrases: Phrase[] = []
 
-  constructor(private lingua:LinguaService) { }
+  constructor(private lingua: LinguaService) {
+  }
 
   ngOnInit(): void {
+
+    // TODO read this from the locastorage
     this.text.setValue("да нет")
     this.trainingData.from_lang = "ru"
     this.trainingData.to_lang = "en"
@@ -32,6 +37,10 @@ export class ReadComponent implements OnInit {
       onChange: input => this.onChange(input),
       onKeyPress: button => this.onKeyPress(button)
     });
+
+    this.lingua.getAllPhrases(this.trainingData.from_lang, this.trainingData.to_lang).subscribe({
+      next: data => this.phrases = data
+    })
   }
 
   readText() {
@@ -46,6 +55,11 @@ export class ReadComponent implements OnInit {
         this.trainingData = value
       }
     })
+  }
+
+  selectPhraseForTraining(phrase: Phrase) {
+    this.text.setValue(phrase.phrase)
+    this.readText()
   }
 
   showThisWord(word: Vocabulary) {
@@ -85,14 +99,30 @@ export class ReadComponent implements OnInit {
     })
 
     if (this.trainingData.vocabulary.length == this.comparing.length) {
-      setTimeout(()=>{
-        this.trainingData.vocabulary.forEach(vocabular => {
-          vocabular.written += 1
-        })
-        console.log(this.trainingData)
-        this.typing.setValue("")
-        this.comparing = []
-      }, 1000)
+
+      this.trainingData.vocabulary.forEach(vocabular => {
+        vocabular.written += 1
+      })
+
+      console.log(this.trainingData)
+
+      let that = this
+      this.lingua.saveTrainingProgress(this.trainingData).subscribe({
+        next: value => {
+          this.trainingData = value
+
+          // @ts-ignore
+          this.lingua.getAllPhrases(this.trainingData.from_lang, this.trainingData.to_lang).subscribe({
+            next: data => this.phrases = data
+          })
+          setTimeout(() => {
+            console.log(this.trainingData)
+            this.typing.setValue("")
+            this.comparing = []
+          }, 1000) // TODO use animation
+        }
+      })
+
     }
   };
 
@@ -110,6 +140,5 @@ export class ReadComponent implements OnInit {
 
 
   protected readonly events = events;
-
 
 }

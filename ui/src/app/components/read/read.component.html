@@ -7,6 +7,9 @@
 <div>
   <button class="word btn" [class.btn-info]="!vocabulary.translation" [class.btn-primary]="vocabulary.translation" *ngFor="let vocabulary of trainingData?.vocabulary" (click)="showThisWord(vocabulary)">{{vocabulary.word}}</button>
 </div>
+<ul>
+  <li *ngFor="let phrase of phrases"><button class="btn btn-primary btn-sm badge-sm" style="margin: 0.1rem" (click)="selectPhraseForTraining(phrase)">{{phrase.phrase}}</button></li>
+</ul>
 <hr>
 
 <hr>
